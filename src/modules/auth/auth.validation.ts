@@ -40,6 +40,9 @@ export const authValidation = {
     githubUrl: z.string().optional(),
     skills: z.string().optional(),
   }),
+  refreshToken: z.object({
+    refreshToken: z.string({ message: 'Refresh token is required' }),
+  }),
 };
 
 export type TRegister = z.infer<typeof authValidation.register>;
@@ -50,3 +53,4 @@ export type TForgotPassword = z.infer<typeof authValidation.forgotPassword>;
 export type TResetPassword = z.infer<typeof authValidation.resetPassword>;
 export type TUpdateProfile = z.infer<typeof authValidation.updateProfile>;
 export type TGoogleLogin = z.infer<typeof authValidation.googleLogin>;
+export type TRefreshToken = z.infer<typeof authValidation.refreshToken>;
