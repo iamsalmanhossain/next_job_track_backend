@@ -10,6 +10,7 @@ import { followUpRoutes } from '../modules/follow-up/follow-up.route.js';
 import { notificationRoutes } from '../modules/notification/notification.route.js';
 import { userDashboardRoutes } from '../modules/user-dashboard/user-dashboard.route.js';
 import { adminRoutes } from '../modules/admin/admin.route.js';
+import { supportTicketRoutes } from '../modules/support-ticket/support-ticket.route.js';
 
 const router:Router = express.Router();
 
@@ -49,6 +50,10 @@ const moduleRoutes = [
   {
     path: '/user-dashboard',
     route: userDashboardRoutes,
+  },
+  {
+    path: '/support-tickets',
+    route: supportTicketRoutes,
   },
   {
     path: '/admin',
