@@ -28,6 +28,12 @@ router.post(
 );
 
 router.post(
+  '/refresh-token',
+  validateRequest(authValidation.refreshToken),
+  authController.refreshToken
+);
+
+router.post(
   '/verify-email',
   validateRequest(authValidation.verifyEmail),
   authController.verifyEmail

@@ -183,6 +183,18 @@ const adminLogin = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const refreshToken = catchAsync(async (req: Request, res: Response) => {
+  const token = req.body.refreshToken || req.cookies?.refreshToken;
+  const result = await authService.refreshToken(token);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Access token refreshed successfully',
+    data: result,
+  });
+});
+
 export const authController = {
   register,
   verifyEmail,
@@ -199,4 +211,5 @@ export const authController = {
   createAdmin,
   setupAdmin,
   adminLogin,
+  refreshToken,
 };
