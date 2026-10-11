@@ -4,6 +4,7 @@ import { env } from './config/env.js';
 import { createServer } from 'http';
 import prisma from './config/prisma.js';
 import { connectRedis, disconnectRedis } from './shared/redis.service.js';
+import { initCronJobs } from './cronJob/index.js';
 
 let server: ReturnType<typeof createServer>;
 
@@ -15,6 +16,7 @@ process.on('uncaughtException', (error) => {
 async function bootstrap() {
   try {
     await connectRedis();
+    initCronJobs();
     server = createServer(app);
 
     server.listen(env.PORT, () => {
