@@ -1,5 +1,5 @@
 import prisma from '../../config/prisma.js';
-import { hashPassword, comparePassword, generateToken } from './auth.utils.js';
+import { hashPassword, comparePassword, generateToken, verifyToken } from './auth.utils.js';
 import { env } from '../../config/env.js';
 import httpStatus from 'http-status';
 import { AppError } from '../../shared/AppError.js';
@@ -440,6 +440,50 @@ const adminLogin = async (data: TLogin & { ipAddress?: string; userAgent?: strin
   };
 };
 
+const refreshToken = async (incomingRefreshToken: string) => {
+  if (!incomingRefreshToken) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Refresh token is required');
+  }
+
+  // 1. Verify token signature and expiration
+  let decoded: any;
+  try {
+    decoded = verifyToken(incomingRefreshToken, env.JWT_REFRESH_SECRET);
+  } catch (err) {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid or expired refresh token');
+  }
+
+  // 2. Check if session exists in DB and is not expired
+  const session = await prisma.session.findUnique({
+    where: { refreshToken: incomingRefreshToken },
+    include: { user: true },
+  });
+
+  if (!session) {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'Session not found or has been revoked');
+  }
+
+  if (new Date() > session.expiresAt) {
+    await prisma.session.delete({ where: { id: session.id } });
+    throw new AppError(httpStatus.UNAUTHORIZED, 'Session has expired, please log in again');
+  }
+
+  if (session.user.isDeleted || session.user.status !== 'ACTIVE') {
+    throw new AppError(httpStatus.FORBIDDEN, 'User account is inactive or deleted');
+  }
+
+  // 3. Generate fresh access token
+  const newAccessToken = generateToken(
+    { userId: session.userId },
+    env.JWT_SECRET,
+    env.JWT_EXPIRES_IN
+  );
+
+  return {
+    accessToken: newAccessToken,
+  };
+};
+
 export const authService = {
   register,
   verifyEmail,
@@ -455,4 +499,6 @@ export const authService = {
   deleteProfile,
   createAdmin,
   adminLogin,
+  refreshToken,
 };
+

@@ -5,6 +5,7 @@ import { verifyToken } from '../modules/auth/auth.utils.js';
 import { env } from '../config/env.js';
 import prisma from '../config/prisma.js';
 import type { Role } from '@prisma/client';
+import { demoReadOnlyGuard } from './demoGuard.js';
 
 export const auth = (...requiredRoles: Role[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -43,7 +44,8 @@ export const auth = (...requiredRoles: Role[]) => {
       // Attach user to request
       (req as any).user = user;
 
-      next();
+      // Guard demo accounts against modifying the actual database
+      demoReadOnlyGuard(req, res, next);
     } catch (error: any) {
       next(new AppError(error.statusCode || httpStatus.UNAUTHORIZED, error.message || 'Unauthorized'));
     }
