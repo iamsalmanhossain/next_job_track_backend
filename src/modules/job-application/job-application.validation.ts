@@ -18,8 +18,8 @@ const createJobApplication = z.object({
     isFavorite: z.boolean().optional(),
     description: z.string().optional(),
     requirements: z.string().optional(),
-    appliedAt: z.string().optional(),
-    deadline: z.string().optional(),
+    appliedAt: z.string().nullable().optional(),
+    deadline: z.string().nullable().optional(),
 });
 
 const updateJobApplication = z.object({
@@ -40,8 +40,8 @@ const updateJobApplication = z.object({
     isFavorite: z.boolean().optional(),
     description: z.string().optional(),
     requirements: z.string().optional(),
-    appliedAt: z.string().optional(),
-    deadline: z.string().optional(),
+    appliedAt: z.string().nullable().optional(),
+    deadline: z.string().nullable().optional(),
 });
 
 export const jobApplicationValidation = {
