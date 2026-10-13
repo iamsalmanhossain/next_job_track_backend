@@ -4,11 +4,28 @@ import httpStatus from 'http-status';
 import { calculatePagination } from '../../shared/paginationHelper.js';
 import type { TCreateJobApplication, TUpdateJobApplication } from './job-application.validation.js';
 
+const parseDate = (val?: string | null) => {
+  if (!val || typeof val !== 'string' || !val.trim()) return undefined;
+  const parsed = new Date(val);
+  return isNaN(parsed.getTime()) ? undefined : parsed;
+};
+
+const parseDateForUpdate = (val?: string | null) => {
+  if (val === undefined) return undefined;
+  if (!val || (typeof val === 'string' && !val.trim())) return null;
+  const parsed = new Date(val);
+  return isNaN(parsed.getTime()) ? null : parsed;
+};
+
 const createJobApplication = async (userId: string, payload: TCreateJobApplication) => {
+  const { appliedAt, deadline, ...rest } = payload;
+
   const result = await prisma.jobApplication.create({
     data: {
       userId,
-      ...(payload as any),
+      ...(rest as any),
+      appliedAt: parseDate(appliedAt),
+      deadline: parseDate(deadline),
     },
   });
   return result;
@@ -94,11 +111,22 @@ const updateJobApplication = async (userId: string, applicationId: string, paylo
     throw new AppError(httpStatus.NOT_FOUND, 'Job application not found');
   }
 
+  const { appliedAt, deadline, ...rest } = payload;
+  const updateData: any = { ...rest };
+
+  if (appliedAt !== undefined) {
+    updateData.appliedAt = parseDateForUpdate(appliedAt);
+  }
+
+  if (deadline !== undefined) {
+    updateData.deadline = parseDateForUpdate(deadline);
+  }
+
   const result = await prisma.jobApplication.update({
     where: {
       id: applicationId,
     },
-    data: payload as any,
+    data: updateData,
   });
 
   return result;

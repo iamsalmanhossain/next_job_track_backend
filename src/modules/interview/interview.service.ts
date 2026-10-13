@@ -14,10 +14,13 @@ const createInterview = async (userId: string, payload: TCreateInterview) => {
     throw new AppError(httpStatus.NOT_FOUND, 'Job application not found');
   }
 
+  const { scheduledAt, ...rest } = payload;
+
   const result = await prisma.interview.create({
     data: {
       userId,
-      ...(payload as any),
+      ...(rest as any),
+      scheduledAt: new Date(scheduledAt),
     },
   });
   return result;
@@ -79,9 +82,16 @@ const updateInterview = async (userId: string, interviewId: string, payload: TUp
     throw new AppError(httpStatus.NOT_FOUND, 'Interview not found');
   }
 
+  const { scheduledAt, ...rest } = payload;
+  const dataToUpdate: any = { ...rest };
+
+  if (scheduledAt !== undefined) {
+    dataToUpdate.scheduledAt = new Date(scheduledAt);
+  }
+
   const result = await prisma.interview.update({
     where: { id: interviewId },
-    data: payload as any,
+    data: dataToUpdate,
   });
 
   return result;
