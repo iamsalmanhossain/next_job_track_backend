@@ -11,7 +11,7 @@ const createInterview = async (userId: string, payload: TCreateInterview) => {
   });
 
   if (!jobApp) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Job application not found');
+    throw new AppError(httpStatus.NOT_FOUND, ' Job application not found');
   }
 
   const { scheduledAt, ...rest } = payload;
