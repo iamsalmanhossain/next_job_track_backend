@@ -14,7 +14,7 @@ export const auth = (...requiredRoles: Role[]) => {
       const token = authHeader?.split(' ')[1] || authHeader;
 
       if (!token) {
-        throw new AppError(httpStatus.UNAUTHORIZED, 'You are not logged in. Please provide a valid token.');
+        throw AppError(httpStatus.UNAUTHORIZED, 'You are not logged in. Please provide a valid token.');
       }
 
       const decoded = verifyToken(token, env.JWT_SECRET) as any;
@@ -25,20 +25,20 @@ export const auth = (...requiredRoles: Role[]) => {
       });
 
       if (!user) {
-        throw new AppError(httpStatus.UNAUTHORIZED, 'User no longer exists.');
+        throw AppError(httpStatus.UNAUTHORIZED, 'User no longer exists.');
       }
 
       if (user.isDeleted) {
-        throw new AppError(httpStatus.FORBIDDEN, 'Your account has been deleted.');
+        throw AppError(httpStatus.FORBIDDEN, 'Your account has been deleted.');
       }
 
       if (user.status !== 'ACTIVE') {
-        throw new AppError(httpStatus.FORBIDDEN, `Your account is ${user.status.toLowerCase()}.`);
+        throw AppError(httpStatus.FORBIDDEN, `Your account is ${user.status.toLowerCase()}.`);
       }
 
       // Check roles if required
       if (requiredRoles.length > 0 && !requiredRoles.includes(user.role)) {
-        throw new AppError(httpStatus.FORBIDDEN, 'You do not have permission to access this route.');
+        throw AppError(httpStatus.FORBIDDEN, 'You do not have permission to access this route.');
       }
 
       // Attach user to request
@@ -47,7 +47,7 @@ export const auth = (...requiredRoles: Role[]) => {
       // Guard demo accounts against modifying the actual database
       demoReadOnlyGuard(req, res, next);
     } catch (error: any) {
-      next(new AppError(error.statusCode || httpStatus.UNAUTHORIZED, error.message || 'Unauthorized'));
+      next(AppError(error.statusCode || httpStatus.UNAUTHORIZED, error.message || 'Unauthorized'));
     }
   };
 };

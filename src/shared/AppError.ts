@@ -5,7 +5,7 @@ export interface AppError extends Error {
 
 
 
-export function AppError(statusCode: number, message: string, isOperational = true): AppError {
+export const AppError = (statusCode: number, message: string, isOperational = true): AppError => {
   const error = new Error(message) as AppError;
   error.statusCode = statusCode;
   error.isOperational = isOperational;
